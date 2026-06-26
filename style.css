@@ -1,0 +1,71 @@
+body{
+    margin:0;
+    padding:20px;
+    background:#0b6623;
+    color:white;
+    font-family:Arial,Helvetica,sans-serif;
+    text-align:center;
+}
+
+h1{
+    margin-top:5px;
+}
+
+#marcador{
+    display:flex;
+    justify-content:space-around;
+    margin:20px 0;
+    font-size:18px;
+    font-weight:bold;
+}
+
+.cartas{
+    display:flex;
+    justify-content:center;
+    flex-wrap:wrap;
+    gap:8px;
+    min-height:90px;
+    margin-bottom:10px;
+}
+
+.carta{
+    width:60px;
+    height:85px;
+    background:white;
+    border-radius:8px;
+    color:black;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    font-size:24px;
+    font-weight:bold;
+}
+
+.roja{
+    color:red;
+}
+
+.oculta{
+    background:#1a4d8f;
+    color:white;
+}
+
+button{
+    width:95%;
+    max-width:350px;
+    padding:15px;
+    margin:8px;
+    font-size:18px;
+    border:none;
+    border-radius:10px;
+}
+
+#nueva{
+    background:#ffc107;
+}
+
+#mensaje{
+    font-size:20px;
+    margin:20px;
+    min-height:40px;
+}
