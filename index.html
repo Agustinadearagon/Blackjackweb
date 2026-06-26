@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blackjack</title>
+
+    <link rel="manifest" href="manifest.json">
+    <link rel="stylesheet" href="style.css">
+
+    <meta name="theme-color" content="#0b6623">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+</head>
+
+<body>
+
+<h1>BLACKJACK</h1>
+
+<div id="marcador">
+    <span>Tú: <strong id="jugadorScore">0</strong></span>
+    <span>Banca: <strong id="bancaScore">0</strong></span>
+    <span>Empates: <strong id="empatesScore">0</strong></span>
+</div>
+
+<div class="mesa">
+
+    <h2>Banca</h2>
+    <div id="cartasBanca" class="cartas"></div>
+    <div id="puntosBanca">Puntaje: ??</div>
+
+    <h2>Tu mano</h2>
+    <div id="cartasJugador" class="cartas"></div>
+    <div id="puntosJugador">Puntaje: 0</div>
+
+</div>
+
+<p id="mensaje">
+Pulsa "Nueva partida" para comenzar.
+</p>
+
+<div class="botones">
+    <button id="pedir">Pedir carta</button>
+    <button id="plantarse">Plantarse</button>
+    <button id="nueva">Nueva partida</button>
+</div>
+
+<script src="script.js"></script>
+
+</body>
+</html>
