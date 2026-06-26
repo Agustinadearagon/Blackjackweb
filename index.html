@@ -1,50 +1,367 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Blackjack</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Blackjack</title>
+  <meta name="description" content="Juego de Blackjack para Android" />
+  <meta name="theme-color" content="#0b6623" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <link rel="manifest" href="manifest.json" />
+  <link rel="icon" href="icon-192.png" />
+  <link rel="apple-touch-icon" href="icon-192.png" />
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
 
-    <link rel="manifest" href="manifest.json">
-    <link rel="stylesheet" href="style.css">
+    body {
+      background: #0b6623;
+      background-image: radial-gradient(ellipse at center, #0f7a29 0%, #0b6623 60%, #083d15 100%);
+      min-height: 100dvh;
+      font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+      color: white;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 12px 16px 24px;
+      gap: 10px;
+    }
 
-    <meta name="theme-color" content="#0b6623">
-    <meta name="apple-mobile-web-app-capable" content="yes">
+    h1 {
+      font-size: 2rem;
+      font-weight: 900;
+      letter-spacing: 6px;
+      text-shadow: 0 2px 8px rgba(0,0,0,0.5);
+      margin-top: 4px;
+    }
+
+    /* MARCADOR */
+    #marcador-box {
+      background: rgba(0,0,0,0.25);
+      border-radius: 12px;
+      padding: 8px 16px;
+      text-align: center;
+      width: 100%;
+      max-width: 420px;
+    }
+    #marcador {
+      font-size: 1rem;
+      font-weight: 600;
+      letter-spacing: 1px;
+    }
+    #btn-reiniciar-marcador {
+      margin-top: 6px;
+      background: #ddd;
+      color: #333;
+      border: none;
+      border-radius: 8px;
+      padding: 5px 14px;
+      font-size: 0.8rem;
+      cursor: pointer;
+      font-weight: 600;
+    }
+
+    /* ZONAS MANO */
+    .zona-label {
+      font-size: 1rem;
+      font-weight: 700;
+      letter-spacing: 2px;
+      opacity: 0.85;
+      text-transform: uppercase;
+    }
+
+    .zona {
+      width: 100%;
+      max-width: 420px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .cartas {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 6px;
+      min-height: 80px;
+      align-items: center;
+    }
+
+    .carta {
+      width: 52px;
+      height: 74px;
+      border-radius: 8px;
+      border: 2px solid rgba(255,255,255,0.3);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.1rem;
+      font-weight: 800;
+      box-shadow: 2px 3px 8px rgba(0,0,0,0.35);
+      line-height: 1.2;
+    }
+    .carta.visible { background: white; }
+    .carta.roja { color: #d00; }
+    .carta.negra { color: #111; }
+    .carta.oculta { background: #1a4d8f; color: white; font-size: 1.5rem; }
+
+    .puntaje {
+      font-size: 1rem;
+      color: #ffcc00;
+      font-weight: 700;
+    }
+
+    /* ESTADO */
+    #estado {
+      font-size: 1.1rem;
+      font-weight: 700;
+      text-align: center;
+      min-height: 2.2em;
+      padding: 4px 8px;
+      max-width: 420px;
+    }
+
+    /* BOTONES */
+    #botones {
+      width: 100%;
+      max-width: 420px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+    #botones button {
+      padding: 14px 8px;
+      font-size: 1rem;
+      font-weight: 700;
+      border: none;
+      border-radius: 12px;
+      cursor: pointer;
+      letter-spacing: 0.5px;
+      transition: opacity 0.15s, transform 0.1s;
+      box-shadow: 0 3px 8px rgba(0,0,0,0.3);
+    }
+    #botones button:disabled {
+      opacity: 0.35;
+      cursor: not-allowed;
+      transform: none !important;
+    }
+    #botones button:not(:disabled):active { transform: scale(0.96); }
+
+    #btn-pedir    { background: #4caf50; color: white; }
+    #btn-plantarse { background: #e53935; color: white; }
+    #btn-nueva    { background: #ffcc00; color: #333; grid-column: 1 / -1; font-size: 1.05rem; }
+
+    /* Separador visual entre zonas */
+    .sep {
+      width: 80%;
+      max-width: 320px;
+      border: none;
+      border-top: 1px solid rgba(255,255,255,0.15);
+    }
+  </style>
 </head>
-
 <body>
 
-<h1>BLACKJACK</h1>
+  <h1>♠ BLACKJACK ♠</h1>
 
-<div id="marcador">
-    <span>Tú: <strong id="jugadorScore">0</strong></span>
-    <span>Banca: <strong id="bancaScore">0</strong></span>
-    <span>Empates: <strong id="empatesScore">0</strong></span>
-</div>
+  <!-- Marcador -->
+  <div id="marcador-box">
+    <div id="marcador">Tú: 0 &nbsp;|&nbsp; Banca: 0 &nbsp;|&nbsp; Empates: 0</div>
+    <button id="btn-reiniciar-marcador" onclick="reiniciarMarcador()">Reiniciar marcador</button>
+  </div>
 
-<div class="mesa">
+  <!-- Banca -->
+  <div class="zona">
+    <span class="zona-label">Banca</span>
+    <div class="cartas" id="cartas-banca"></div>
+    <div class="puntaje" id="puntaje-banca">Puntaje: ??</div>
+  </div>
 
-    <h2>Banca</h2>
-    <div id="cartasBanca" class="cartas"></div>
-    <div id="puntosBanca">Puntaje: ??</div>
+  <hr class="sep" />
 
-    <h2>Tu mano</h2>
-    <div id="cartasJugador" class="cartas"></div>
-    <div id="puntosJugador">Puntaje: 0</div>
+  <!-- Estado -->
+  <div id="estado">Pulsa "Nueva partida" para empezar</div>
 
-</div>
+  <hr class="sep" />
 
-<p id="mensaje">
-Pulsa "Nueva partida" para comenzar.
-</p>
+  <!-- Jugador -->
+  <div class="zona">
+    <span class="zona-label">Tu mano</span>
+    <div class="cartas" id="cartas-jugador"></div>
+    <div class="puntaje" id="puntaje-jugador">Puntaje: 0</div>
+  </div>
 
-<div class="botones">
-    <button id="pedir">Pedir carta</button>
-    <button id="plantarse">Plantarse</button>
-    <button id="nueva">Nueva partida</button>
-</div>
+  <!-- Botones -->
+  <div id="botones">
+    <button id="btn-pedir"    onclick="pedirCarta()"   disabled>Pedir carta</button>
+    <button id="btn-plantarse" onclick="plantarse()"   disabled>Plantarse</button>
+    <button id="btn-nueva"    onclick="nuevaPartida()">Nueva partida</button>
+  </div>
 
-<script src="script.js"></script>
+<script>
+  // ── Constantes ──────────────────────────────────────────────────
+  const PALOS = ['♠','♥','♦','♣'];
+  const PALOS_ROJOS = new Set(['♥','♦']);
+  const VALORES = ['2','3','4','5','6','7','8','9','10','J','Q','K','A'];
 
+  // ── Estado del juego ─────────────────────────────────────────────
+  let baraja = [], manoJugador = [], manoBanca = [];
+  let juegoActivo = false;
+  let marcJugador = 0, marcBanca = 0, marcEmpates = 0;
+
+  // ── Lógica (idéntica al .py) ─────────────────────────────────────
+  function crearBaraja() {
+    const b = [];
+    for (const palo of PALOS)
+      for (const valor of VALORES)
+        b.push([valor, palo]);
+    for (let i = b.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [b[i], b[j]] = [b[j], b[i]];
+    }
+    return b;
+  }
+
+  function valorCarta([valor]) {
+    if (['J','Q','K'].includes(valor)) return 10;
+    if (valor === 'A') return 11;
+    return parseInt(valor);
+  }
+
+  function calcularPuntaje(mano) {
+    let puntaje = mano.reduce((s, c) => s + valorCarta(c), 0);
+    let ases = mano.filter(c => c[0] === 'A').length;
+    while (puntaje > 21 && ases) { puntaje -= 10; ases--; }
+    return puntaje;
+  }
+
+  // ── Vista ─────────────────────────────────────────────────────────
+  function renderCarta([valor, palo], oculta = false) {
+    const div = document.createElement('div');
+    if (oculta) {
+      div.className = 'carta oculta';
+      div.textContent = '?';
+    } else {
+      const roja = PALOS_ROJOS.has(palo);
+      div.className = `carta visible ${roja ? 'roja' : 'negra'}`;
+      div.innerHTML = `<span>${valor}</span><span>${palo}</span>`;
+    }
+    return div;
+  }
+
+  function actualizarVista(ocultarBanca = true) {
+    const cb = document.getElementById('cartas-banca');
+    const cj = document.getElementById('cartas-jugador');
+    cb.innerHTML = ''; cj.innerHTML = '';
+
+    manoBanca.forEach((carta, i) => {
+      cb.appendChild(renderCarta(carta, ocultarBanca && i === 1));
+    });
+    manoJugador.forEach(carta => cj.appendChild(renderCarta(carta)));
+
+    document.getElementById('puntaje-jugador').textContent =
+      `Puntaje: ${calcularPuntaje(manoJugador)}`;
+    document.getElementById('puntaje-banca').textContent =
+      ocultarBanca ? 'Puntaje: ??' : `Puntaje: ${calcularPuntaje(manoBanca)}`;
+  }
+
+  function setEstado(texto, color = 'white') {
+    const el = document.getElementById('estado');
+    el.textContent = texto;
+    el.style.color = color;
+  }
+
+  function actualizarMarcador() {
+    document.getElementById('marcador').innerHTML =
+      `Tú: ${marcJugador} &nbsp;|&nbsp; Banca: ${marcBanca} &nbsp;|&nbsp; Empates: ${marcEmpates}`;
+  }
+
+  function reiniciarMarcador() {
+    marcJugador = marcBanca = marcEmpates = 0;
+    actualizarMarcador();
+  }
+
+  function setBotones(pedir, plantarse) {
+    document.getElementById('btn-pedir').disabled    = !pedir;
+    document.getElementById('btn-plantarse').disabled = !plantarse;
+  }
+
+  // ── Lógica de partida ─────────────────────────────────────────────
+  function nuevaPartida() {
+    baraja = crearBaraja();
+    manoJugador = []; manoBanca = [];
+    for (let i = 0; i < 2; i++) {
+      manoJugador.push(baraja.pop());
+      manoBanca.push(baraja.pop());
+    }
+    juegoActivo = true;
+    setBotones(true, true);
+    setEstado('Elige: pedir carta o plantarte');
+    actualizarVista(true);
+
+    if (calcularPuntaje(manoJugador) === 21) {
+      setEstado('¡BLACKJACK! Veamos qué tiene la banca...', '#ffcc00');
+      juegoActivo = false;
+      setBotones(false, false);
+      setTimeout(turnoBanca, 800);
+    }
+  }
+
+  function pedirCarta() {
+    if (!juegoActivo) return;
+    manoJugador.push(baraja.pop());
+    actualizarVista(true);
+    if (calcularPuntaje(manoJugador) > 21) {
+      juegoActivo = false;
+      setBotones(false, false);
+      actualizarVista(false);
+      terminarPartida();
+    }
+  }
+
+  function plantarse() {
+    if (!juegoActivo) return;
+    juegoActivo = false;
+    setBotones(false, false);
+    turnoBanca();
+  }
+
+  function turnoBanca() {
+    actualizarVista(false);
+    if (calcularPuntaje(manoBanca) < 17) {
+      setEstado('La banca está pidiendo cartas...');
+      setTimeout(bancaPideCarta, 700);
+    } else {
+      setTimeout(terminarPartida, 300);
+    }
+  }
+
+  function bancaPideCarta() {
+    manoBanca.push(baraja.pop());
+    actualizarVista(false);
+    setTimeout(turnoBanca, 700);
+  }
+
+  function terminarPartida() {
+    const pj = calcularPuntaje(manoJugador);
+    const pb = calcularPuntaje(manoBanca);
+    let texto, color;
+    if (pj > 21)      { texto = 'Has perdido (te pasaste de 21).'; color = '#ff6b6b'; marcBanca++; }
+    else if (pb > 21) { texto = '¡La banca se pasó de 21! Ganas tú.'; color = '#90ee90'; marcJugador++; }
+    else if (pj > pb) { texto = '¡Ganaste!'; color = '#90ee90'; marcJugador++; }
+    else if (pj < pb) { texto = 'Gana la banca.'; color = '#ff6b6b'; marcBanca++; }
+    else              { texto = 'Empate.'; color = '#ffcc00'; marcEmpates++; }
+    setEstado(texto, color);
+    actualizarMarcador();
+  }
+
+  // ── PWA: registrar Service Worker ────────────────────────────────
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('sw.js').catch(() => {});
+  }
+</script>
 </body>
 </html>
